@@ -1,0 +1,40 @@
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;       /* занимает весь экран */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 30px;
+  background-color: var(--theme-color);
+  color: white;
+}
+
+.header-icon {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.content {
+  flex: 1;              /* занимает всё пространство между header и footer */
+  display: flex;         /* flex-контейнер для двух колонок */
+  gap: 20px;
+  padding: 0;            /* padding переносим внутрь колонок */
+  min-height: 0;         /* важно для корректного scroll внутри колонок */
+}
+
+.footer {
+  background: #e5e7eb;
+  color: #333;
+  text-align: center;
+  padding: 0px 0;
+}

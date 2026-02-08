@@ -1,0 +1,12 @@
+.expand-btn {
+  background-color: #fff !important;
+  color: var(--theme-color) !important;
+  border: 1px solid var(--theme-color) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.expand-btn:hover {
+  background-color: var(--theme-color) !important;
+  color: #fff !important;
+  border-color: var(--theme-color) !important;
+}
