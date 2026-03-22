@@ -8,15 +8,6 @@ services:
     ports:
       - "5173:5173"
     depends_on:
-      - spring
-
-  spring:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    depends_on:
       - model-service
 
   model-service:
@@ -26,5 +17,5 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./model-service/model:/app/model
+      - ./model-service/models:/app/models
       - ./model-service/knowledge:/app/knowledge

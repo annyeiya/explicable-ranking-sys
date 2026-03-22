@@ -23,15 +23,15 @@
   background-color: #fff3cd;
   border-radius: 4px;
   padding: 2px 4px;
-  cursor: pointer
+  cursor: pointer;
 }
 
 .input-column {
-  flex: 6;               /* 70% ширины */
+  flex: 6;
   display: flex;
   flex-direction: column;
   padding: 10px;
-  min-height: 0;         /* важно для scroll */
+  min-height: 0;
 }
 
 .read-only-box {
@@ -50,8 +50,8 @@
 .input-textarea {
   flex: 1;
   width: 100%;
-  resize: none;          /* нельзя вручную менять размер */
-  overflow: auto;        /* прокрутка внутри колонки */
+  resize: none;
+  overflow: auto;
   padding: 10px;
   font-size: 1rem;
   border-radius: 8px;
@@ -66,17 +66,17 @@
 }
 
 .output-column {
-  flex: 4;               /* 30% ширины */
+  flex: 4;
   display: flex;
   flex-direction: column;
   padding: 10px;
   border-left: 1px solid #ccc;
-  min-height: 0;         /* важно для scroll */
+  min-height: 0; 
 }
 
 .output-content {
   flex: 1;
-  overflow: auto;        /* прокрутка блока ответа */
+  overflow: auto;
   background-color: #f9f9f9;
   padding: 10px;
   border-radius: 8px;
@@ -98,4 +98,20 @@
 .btn-custom:hover {
   background-color: #359dbd !important; 
   border-color: #359dbd !important;
+}
+
+.btn-load {
+  background-color: white !important;
+  border-color: var(--theme-color) !important;
+  color: #6C757D !important;;
+}
+
+.btn-load:hover {
+  background-color: var(--theme-color) !important;
+  border-color: var(--theme-color) !important;
+}
+
+.drag-active {
+  border: 4px dashed #4edcff;
+  border-radius: 8px;
 }

@@ -1,5 +1,5 @@
 export async function sendText(text) {
-    const res = await fetch("/api/query", {
+    const res = await fetch("model/predict", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

@@ -3,7 +3,9 @@
 
 <img src="outher/image.png" width="400">
 
-✅ **Для работы необходимо загрузить модель в директорию model-service/model веса модели, ссылка на скачивание в файле model_path.txt, после соберите и поднимите docker-compose.**
+Система поддерживает работу с 2мя видами модели: sentence-transformer модель и torch модель.
+
+✅ **Для работы необходимо загрузить модель в директорию model-service/model веса модели, ссылки на скачивание в файлах sent-model_path.txt и torch-model_path.txt, после соберите и поднимите docker-compose.**
 
 Сборка:
 ```
@@ -14,18 +16,14 @@ docker-compose -p sys up
 ```
 docker-compose -p sys down
 ```
-*Пожалуйста дождитесь уведомления* "model-service  | INFO:     Application startup complete." *После первого запроса сервер модели будет загружать модель и эмбеддинги, конец загрузки:* "model-service  | [INFO] Пайплайн готов! Сервис можно использовать"*, запуск сервиса модели может занять время из-за подсчета эмбеддингов :) (последующие запуски будут быстрее)*
+*Пожалуйста дождитесь уведомления* "model-service  | INFO:     Application startup complete." *Использование тяжелых библиотек приводит к долгому запуску контейнера, также после первого запуска сервер модели будет загружать модель и эмбеддинги, запуск сервиса модели может занять время из-за подсчета эмбеддингов :)*
 
-Вес образов: model-service - 12.58 GB; frontend - 253 MB; spring - 212.76 MB
+Вес образов: model-service - 2.32 GB; frontend - 253 MB;
 ## Структура проекта
 explicable-ranking-sys/ <br>
 ├── frontend/              # React приложение<br>
 │   ├── Dockerfile<br>
 │   ├── package.json<br>
-│   └── src/<br>
-├── backend/               # Spring Boot приложение<br>
-│   ├── Dockerfile<br>
-│   ├── pom.xml<br>
 │   └── src/<br>
 ├── model-service/         # FastAPI + ML модель<br>
 │   ├── Dockerfile<br>
@@ -33,7 +31,7 @@ explicable-ranking-sys/ <br>
 │   ├── app/<br>
 │   ├── knowledge/<br>
 │   ├── main.py<br>
-│   └── model/           # Директория для весов модели<br>
+│   └── models/           # Директория для весов модели<br>
 └── docker-compose.yml     # Конфигурация для запуска
 
 ## Конфигурация сервисов
@@ -47,31 +45,6 @@ explicable-ranking-sys/ <br>
 {"text": text}
 ```
 
-### Backend
-* Spring приложение
-* Порт 8080
-* Эндпоинты
-    * post /api/query - запрос обработки текста
-
-Принимает запрос в виде текста и оправляет его модели. После получения ответа выполняет ранжирование и формирует ответ. <br>
-Пример ответа:
-```
-200
-[{'matchedPhrases': [{'function': 'Разработка и утверждение новых маршрутов '
-                                  'городского транспорта',
-                      'similarity': 0.105,
-                      'textPhrase': 'Машины занимают часть тротуара, чем '
-                                    'мешают пешеходам.'},
-                     {'function': 'Содержание и ремонт дорог областного '
-                                  'значения, включая трассы и межмуниципальные '
-                                  'дороги',
-                      'similarity': 0.101,
-                      'textPhrase': 'Машины занимают часть тротуара, чем '
-                                    'мешают пешеходам.'}],
-  'org': 'Министерство дорожного хозяйства и транспорта',
-  'totalScore': 0.972}]
-```
-
 ### Model-service
 * FastAPI
 * Порт 8000
@@ -80,30 +53,32 @@ explicable-ranking-sys/ <br>
     * post /recompute_kb - перестройка векторной базы знаний
     * get /config - запрос конфигурации модели (гиперпараметры)
     * post /config - изменение гипрепараметров модели
+    * post /change_model - изменяет работу с torch модели на sentence-transformer и обратно
 
 Получает текст и производит подготовку и векторизацию предложений. После сопоставляет с векторной базой знаний. <br>
 Пример ответа:
 ```
 200
-{'result': [{'context_boost': 0.347,
-             'function': 'Содержание и ремонт дорог областного значения, '
-                         'включая трассы и межмуниципальные дороги',
-             'org': 'Министерство дорожного хозяйства и транспорта',
-             'similarity': 0.509,
-             'text_phrase': 'Машины занимают часть тротуара, чем мешают '
-                            'пешеходам.'},
-            {'context_boost': 0.158,
-             'function': 'Комплексное снижение выбросов загрязняющих веществ в '
-                         'атмосферный воздух в крупных промышленных центрах '
-                         'России, с целью уменьшения уровня загрязнения и '
-                         'улучшения качества воздуха',
-             'org': 'Министерство экологии',
-             'similarity': 0.428,
-             'text_phrase': 'Плюс к этому во время прогрева автомобилей под '
-                            'окнами стоит ужасная вонь выхлопных газов, '
-                            'невозможно дышать.'}]}
+[{'matchedPhrases': [{'function': 'Содержание и ремонт дорог областного '
+                                  'значения, включая трассы и межмуниципальные '
+                                  'дороги',
+                      'similarity': 0.509,
+                      'textPhrase': 'Машины занимают часть тротуара, чем '
+                                    'мешают пешеходам.'}],
+  'org': 'Министерство дорожного хозяйства и транспорта',
+  'totalScore': 0.956},
+ {'matchedPhrases': [{'function': 'Комплексное снижение выбросов загрязняющих '
+                                  'веществ в атмосферный воздух в крупных '
+                                  'промышленных центрах России, с целью '
+                                  'уменьшения уровня загрязнения и улучшения '
+                                  'качества воздуха',
+                      'similarity': 0.428,
+                      'textPhrase': 'Плюс к этому во время прогрева '
+                                    'автомобилей под окнами стоит ужасная вонь '
+                                    'выхлопных газов, невозможно дышать.'}],
+  'org': 'Министерство экологии',
+  'totalScore': 0.7}]
 ```
-
 
 Структура сервиса: 
 * [`/models`](./model-service/model/) - папка для весов модели
@@ -111,27 +86,37 @@ explicable-ranking-sys/ <br>
     * [`kb.json`](./model-service/knowledge/kb.json) - органы власти и их функции, основная база знаний 
     * буду созданы файлы векторного хранилища и индексации 
 * [`/app/api/routes`](./model-service/app/api/routes/) - эндпоинты 
-* [`/app/inference`](./model-service/app/inference/) - код модулей 
-    * [`compressor`](./model-service/app/inference/compressor.py) - модуль не реализован (должен сокращать длинные предложения)
-    * [`encoder`](./model-service/app/inference/encoder.py) - векторизация через модель в  models
-    * [`filtration`](./model-service/app/inference/filtration.py) - алгоритмическая фильтрация предложений
-    * [`global_score`](./model-service/app/inference/global_score.py) - подсчет скора для всего органа
-    * [`kb`](./model-service/app/inference/kb.py) - модуль работы с базой заний
-    * [`matcher`](./model-service/app/inference/matcher.py) - модуль сопоставления предложений из обращения и функций органов власти
-    * [`pipeline`](./model-service/app/inference/pipeline.py) - собирает работу всех модулей и готовит ответ
+* [`/app/api/schemas`](./model-service/app/api/schemas/) - pydantic модели
+* [`/app/core/`](./model-service/app/core/) - файлы конфигурации
+    * [`container.py`](./model-service/app/core/container.py) - инициализация компонент 
+    * [`logger.py`](./model-service/app/core/logger.py) - логгер приложения
+    * [`settings.py`](./model-service/app/core/settings.py) - пути до файлов
+    * [`state.py`](./model-service/app/core/state.py) - гиперпараметры сервиса
+* [`/app/infrastructure/data/`](./model-service/app/infrastructure/data/) - работа с базой знаний
+    * [`embedding.py`](./model-service/app/infrastructure/data/embedding.py) - векторизация текста
+    * [`faiss_index.py`](./model-service/app/infrastructure/data/faiss_index.py) - управление faiss индексации
+    * [`kb.py`](./model-service/app/infrastructure/data/kb.py) - основной класс для работы с базой знаний
+    * [`kb_loader.py`](./model-service/app/infrastructure/data/kb_loader.py) - загрузчик базы знаний
+* [`/app/infrastructure/ml/`](./model-service/app/infrastructure/ml/) - архитектура PyTorch модели
+* [`/app/services`](./model-service/app/services/) - код модулей 
+    * [`encoder.py`](./model-service/app/services/encoder.py) - векторизация через модель в  models
+    * [`filtration.py`](./model-service/app/services/filtration.py) - алгоритмическая фильтрация предложений
+    * [`matcher.py`](./model-service/app/services/matcher.py) - модуль постобработки 
+    * [`pipeline.py`](./model-service/app/services/pipeline.py) - собирает работу всех модулей и готовит ответ
+
+Архитектура алгоритма ИИ обработки:
 
 <img src="outher/arh.png" width="600">
 
----
+Диаграмма последовательностей: 
+
+<img src="outher/sequence.png" width="800">
+
 ### Гиперпараметры
-На backend:
 * topKOrg - сколько исполнителей будет выведено 
 * topKFunc - сколько ближайших функций для каждого предложения будет максимально взято
-
-На model-service:
 * threshold - [-1, 1] порог косинусного подобия по которому будут отбираться релевантные пары предложения - функция
-* num_sentences - максимальное количество, которое оставит фильтратор
-* summarizer_type - предполагается добавление фильтрации с помощью нейронной сети, пока доступен только 'lsa' - алгоритмический отбор
+* torch_model - флаг указывающий используется ли torch модель
 
 ---
 *Требования к по: ну у меня на i3-12100 с 16 Гб RAM пытается работать*

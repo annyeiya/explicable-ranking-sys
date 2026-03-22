@@ -11,10 +11,9 @@ export default defineConfig({
     }),
   ],
   server: {
-    host: true,
     port: 5173,
     proxy: {
-      '/api': 'http://spring:8080'
+      '/model': 'http://model-service:8000'
     }
   },
 })

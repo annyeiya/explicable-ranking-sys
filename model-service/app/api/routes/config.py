@@ -1,34 +1,33 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
-from app.api.routes.predict import pipeline  
+
+from app.api.schemas.config import ConfigRequest
+from app.core.state import State
 
 router = APIRouter(prefix="/model", tags=["Config"])
 
-class ConfigRequest(BaseModel):
-    threshold: float | None = None
-    num_sentences: int | None = None
-    filter_type: str | None = None
 
 @router.post("/config")
-async def update_config(config: ConfigRequest):
+def update_config(config: ConfigRequest):
+    """Эндпоинт для изменения гиперпараметров системы"""
     if config.threshold is not None:
-        pipeline.matcher.threshold = config.threshold
-    if config.num_sentences is not None:
-        pipeline.num_sentences = config.num_sentences
-        pipeline.filtration.num_sentences = config.num_sentences
-    if config.filter_type is not None:
-        pipeline.filter_type = config.filter_type
-        pipeline.summarizer.method = config.filter_type
+        State.threshold = config.threshold
+    if config.top_k_func is not None:
+        State.top_k_func = config.top_k_func
+    if config.top_k_org is not None:
+        State.top_k_org = config.top_k_org
     return {"status": "ok", "current_config": {
-        "threshold": pipeline.matcher.threshold,
-        "num_sentences": pipeline.filtration.num_sentences,
-        "summarizer_type": pipeline.filter_type
+        "threshold": State.threshold,
+        "top_k_func": State.top_k_func,
+        "top_k_org": State.top_k_org
     }}
+
 
 @router.get("/config")
 async def get_config():
+    """Эндпоинт для получения гиперпараметров системы"""
     return {"status": "ok", "current_config": {
-        "threshold": pipeline.matcher.threshold,
-        "num_sentences": pipeline.num_sentences,
-        "summarizer_type": pipeline.filter_type
+        "threshold": State.threshold,
+        "top_k_func": State.top_k_func,
+        "top_k_org": State.top_k_org,
+        "torch_model": State.torch_model
     }}
