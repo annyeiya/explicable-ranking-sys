@@ -34,6 +34,7 @@ explicable-ranking-sys/ <br>
 │   └── models/           # Директория для весов модели<br>
 └── docker-compose.yml     # Конфигурация для запуска
 
+
 ## Конфигурация сервисов
 ### Frontend
 * React приложение
@@ -79,6 +80,13 @@ explicable-ranking-sys/ <br>
   'org': 'Министерство экологии',
   'totalScore': 0.7}]
 ```
+### Диаграмма классов:
+<table>
+  <tr>
+    <td><img src="outher/back-component.png" alt="Изображение 2"></td>
+    <td><img src="outher/pipline-class.png" alt="Изображение 1"></td>
+  </tr>
+</table>
 
 Структура сервиса: 
 * [`/models`](./model-service/model/) - папка для весов модели
@@ -104,7 +112,7 @@ explicable-ranking-sys/ <br>
     * [`matcher.py`](./model-service/app/services/matcher.py) - модуль постобработки 
     * [`pipeline.py`](./model-service/app/services/pipeline.py) - собирает работу всех модулей и готовит ответ
 
-Архитектура алгоритма ИИ обработки:
+## Алгоритма ИИ обработки:
 
 <img src="outher/arh.png" width="600">
 
@@ -117,6 +125,14 @@ explicable-ranking-sys/ <br>
 * topKFunc - сколько ближайших функций для каждого предложения будет максимально взято
 * threshold - [-1, 1] порог косинусного подобия по которому будут отбираться релевантные пары предложения - функция
 * torch_model - флаг указывающий используется ли torch модель
+
+## Модель векторизации
+Схема:
+
+<img src="outher/model.png" width="600">
+
+Скрипт обучения модели:
+[`training_script.ipynb`](./training_script.ipynb)
 
 ---
 *Требования к по: ну у меня на i3-12100 с 16 Гб RAM пытается работать*
